@@ -22,7 +22,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
+    "back:build": "tsc -p .",
+    "back:watch": "tsc -p . -w",
+    "front:build": "webpack",
     "start": "webpack-dev-server",
     "server": "node app/src/app.js"
   },

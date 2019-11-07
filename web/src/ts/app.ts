@@ -1,7 +1,7 @@
 const socket = new WebSocket('ws://localhost:8082');
 const R = {
     log: document.querySelector('#log'),
-    upload_markdown: document.querySelector('#upload-markdown'),
+    upload_markdown: document.querySelector<HTMLInputElement>('#upload-markdown'),
 }
 
 socket.addEventListener('open', function (event) {
