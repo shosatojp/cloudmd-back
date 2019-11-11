@@ -3,3 +3,5 @@ dist/
 /app/**/*.js
 /app/**/*.map
 /.vscode/settings.json
+/sandbox/
+/data/

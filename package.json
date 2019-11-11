@@ -4,15 +4,20 @@
   "description": "My webpack project",
   "main": "index.js",
   "dependencies": {
-    "@webpack-cli/init": "^0.2.2",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "html-webpack-plugin": "^3.2.0",
+    "sqlite3": "^4.1.0",
     "webpack": "^4.41.2",
     "ws": "^7.2.0"
   },
   "devDependencies": {
+    "@angular/cli": "^8.3.18",
     "@types/express": "^4.17.2",
+    "css-loader": "^3.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "tslint-config-airbnb": "^5.11.2",
@@ -26,7 +31,8 @@
     "back:watch": "tsc -p . -w",
     "front:build": "webpack",
     "start": "webpack-dev-server",
-    "server": "node app/src/app.js"
+    "server": "ts-node app/src/app.ts",
+    "all": "npm run front:build && npm run server"
   },
   "repository": {
     "type": "git",

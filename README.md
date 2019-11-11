@@ -12,3 +12,4 @@
 - バックはDocker内
 - いいかんじのUI(てきとう)
 - latexのinclude、command機能セキュリティ
+- Pandoc Filter with Python
