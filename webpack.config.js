@@ -3,14 +3,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
     mode: 'development',
-    entry: path.resolve(__dirname, 'web/src/ts/app.ts'),
+    entry: path.resolve(__dirname, 'web.old/src/ts/app.ts'),
     output: {
         filename: 'bundle.js?[hash]',
-        path: path.join(__dirname, 'web/dist'),
+        path: path.join(__dirname, 'web.old/dist'),
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'web/src/index.html')
+            template: path.resolve(__dirname, 'web.old/src/index.html')
         })
     ],
     module: {
