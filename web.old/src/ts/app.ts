@@ -37,16 +37,6 @@ fetch('/api/v1/ws/start').then(async res => {
                 }
             })
         };
-        // fetch('/api/v1/upload/markdown', {
-        //     method: 'post',
-        //     body: JSON.stringify({
-        //         data: 'hogehoge',
-        //         passwd: passwd
-        //     }),
-        //     headers: {
-        //         'content-type': 'application/json'
-        //     }
-        // })
     });
 
     socket.addEventListener('message', function (event) {

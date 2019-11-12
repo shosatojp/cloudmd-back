@@ -11,7 +11,6 @@ const app = Express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-
 wss.on('connection', function (ws: WebSocket, request, client) {
     ws.on('message', function (message) {
         const json = JSON.parse(message);
@@ -34,7 +33,7 @@ app.get('/api/v1/ws/start',
         res.json({ passwd });
     }
 )
-app.use(BodyParser.json());
+app.use(BodyParser.json({ limit: '50mb' }));
 app.post('/api/v1/upload/file', async (req, res) => {
     let p: Passwd = null;
     if ((p = Passwd.verify(req.body.passwd))
@@ -74,7 +73,7 @@ app.post('/api/v1/upload/markdown',
         }
     }
 )
-app.use(Express.static(path.resolve(__dirname, '../../web/dist')))
+app.use(Express.static(path.resolve(__dirname, '../../../cloudmd-front/dist/cloudmd-front')))
 
 server.listen(
     8082,
