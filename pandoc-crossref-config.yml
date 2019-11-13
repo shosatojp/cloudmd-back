@@ -1,0 +1,5 @@
+figPrefix: "図"
+tblPrefix: "表"
+eqnPrefix: "式"
+secPrefix: "セクション"
+lstPrefix: "コード"

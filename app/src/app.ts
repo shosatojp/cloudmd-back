@@ -36,6 +36,7 @@ app.get('/api/v1/ws/start',
 app.use(BodyParser.json({ limit: '50mb' }));
 app.post('/api/v1/upload/file', async (req, res) => {
     let p: Passwd = null;
+    if (path.extname(req.body.filename) === '.md') req.body.filename = 'main.md';
     if ((p = Passwd.verify(req.body.passwd))
         && await p.uploadfile(req.body.filename, req.body.data)) {
         res.status(200);
@@ -46,25 +47,11 @@ app.post('/api/v1/upload/file', async (req, res) => {
     }
 });
 
-app.use(BodyParser.json());
-app.post('/api/v1/upload/markdown',
+app.post('/api/v1/exec/compile',
     async (req, res) => {
         let p: Passwd = null;
-        if ((p = Passwd.verify(req.body.passwd))
-            && await p.uploadfile(path.join(), req.body.data)) {
-            const process = ChildProcess.exec('du / -hd 1');
-            process.stdout.on('data', function (data) {
-                p.send_ws({
-                    type: 'stdout',
-                    body: data + '\n'
-                });
-            });
-            process.stderr.on('data', data => {
-                p.send_ws({
-                    type: 'stderr',
-                    body: data + '\n'
-                });
-            });
+        if ((p = Passwd.verify(req.body.passwd))) {
+            await p.execCommand(`pandoc -s -F /home/sho/local/bin/pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && dvipdfmx main.dvi`);
             res.status(200);
             res.end();
         } else {
@@ -73,7 +60,7 @@ app.post('/api/v1/upload/markdown',
         }
     }
 )
-app.use(Express.static(path.resolve(__dirname, '../../../cloudmd-front/dist/cloudmd-front')))
+app.use(Express.static(path.resolve(__dirname, '../../dist')));
 
 server.listen(
     8082,

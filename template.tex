@@ -1,0 +1,31 @@
+\documentclass{jarticle}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{hyperref}
+\usepackage{longtable}
+% \usepackage{booktabs}
+% \usepackage{framed}
+\usepackage{amsmath}
+% \usepackage{breqn}
+\usepackage[margin=1in]{geometry}
+
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+\DeclareFontShape{JY1}{mc}{m}{it}{<->ssub*mc/m/n}{}
+\DeclareFontShape{JY1}{mc}{m}{sl}{<->ssub*mc/m/n}{}
+\DeclareFontShape{JY1}{mc}{m}{sc}{<->ssub*mc/m/n}{}
+\DeclareFontShape{JY1}{gt}{m}{it}{<->ssub*gt/m/n}{}
+\DeclareFontShape{JY1}{gt}{m}{sl}{<->ssub*gt/m/n}{}
+\DeclareFontShape{JY1}{gt}{bx}{it}{<->ssub*gt/bx/n}{}
+\DeclareFontShape{JY1}{mc}{bx}{it}{<->ssub*gt/bx/n}{}
+\DeclareFontShape{JY1}{mc}{bx}{sl}{<->ssub*gt/m/n}{}
+
+\def\tightlist{\itemsep1pt\parskip0pt\parsep0pt}
+\begin{document}
+\date{$date$}
+\title{$title$$if(subtitle)$ - $subtitle$$endif$}
+\author{$author$}
+\maketitle
+$body$
+\end{document}
