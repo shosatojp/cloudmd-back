@@ -4,6 +4,7 @@ import * as child_process from 'child_process';
 
 export class Passwd {
     static user_root = 'dist/data';
+    static archive_root = 'archive';
     static hash_table = new Map<string, Passwd>();
     static str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     static generate_id(n: number = 50): string {
@@ -11,12 +12,35 @@ export class Passwd {
         return new Date().getTime().toString(16) + new Array(n).fill(0).map(() => Passwd.str[Math.floor(Math.random() * len)]).join('');
     }
 
+    static async finalise(ws) {
+        const keys = Passwd.hash_table.keys();
+        let key = null;
+        while (key = keys.next().value) {
+            const value: Passwd = Passwd.hash_table[key];
+            if (value.ws === ws) {
+                value.removeWorkingDirectory();
+                Passwd.hash_table.delete(key);
+                return;
+            }
+        }
+    }
+
+    count = 0;
     ws = null;
     passwd = null;
+    closed = false;
 
     constructor() {
         this.passwd = Passwd.generate_id();
         Passwd.hash_table[this.passwd] = this;
+    }
+
+    removeWorkingDirectory() {
+        return new Promise((res, rej) => {
+            fs.rmdir(`${Passwd.user_root}/${this.passwd}`, { recursive: true }, () => {
+                res();
+            });
+        });
     }
 
     send_ws(data: Object) {
@@ -50,6 +74,7 @@ export class Passwd {
     }
 
     async execCommand(command: string) {
+        this.count++;
         const self = this;
         const process = child_process.exec(`cd ${path.join(Passwd.user_root, this.passwd)} && ${command}`);
         process.stdout.on('data', function (data) {
@@ -58,8 +83,18 @@ export class Passwd {
         process.stderr.on('data', data => {
             self.send_ws({ type: 'stderr', body: data });
         });
-        process.on('close', (code) => {
-            self.send_ws({ type: 'logend', body: '' });
+        process.on('close', async (code) => {
+            self.send_ws({ type: 'logend', body: code });
+            await self.archive();
+        });
+    }
+
+    archive() {
+        return new Promise((res, rej) => {
+            const process = child_process.exec(`tar cfz ${Passwd.archive_root}/${this.passwd}.${('000' + this.count.toString()).slice(-4)}.tar.gz ${Passwd.user_root}/${this.passwd}`);
+            process.on('close', () => {
+                res();
+            });
         });
     }
 

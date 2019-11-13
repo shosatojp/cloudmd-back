@@ -19,6 +19,10 @@ wss.on('connection', function (ws: WebSocket, request, client) {
             p.set_ws(ws);
         }
     });
+
+    ws.on('close', function () {
+        Passwd.finalise(ws);
+    });
 });
 
 
