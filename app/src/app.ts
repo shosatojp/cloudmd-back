@@ -77,9 +77,9 @@ app.post('/api/v1/exec/compile',
 app.use(Express.static(path.resolve(__dirname, '../../dist')));
 
 server.listen(
-    8082,
+    8084,
     () => {
-        console.log('Example app listening on port!');
+        console.log('server started');
     });
 
 export default app;
