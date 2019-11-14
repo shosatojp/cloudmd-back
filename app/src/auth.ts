@@ -103,7 +103,7 @@ export class Passwd {
     async execCommand(command: string) {
         this.count++;
         const self = this;
-        const p = child_process.exec(`cd ${path.join(Passwd.user_root, this.passwd)} && ${command}`, { env: { 'PATH': process.env['PATH'] } });
+        const p = child_process.exec(`cd ${path.join(Passwd.user_root, this.passwd)} && ${command}`, { env: process.env });
         p.stdout.on('data', function (data) {
             self.send_ws({ type: 'stdout', body: data });
         });
