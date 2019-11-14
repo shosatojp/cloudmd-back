@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
+import * as process from 'process';
 
 export class Passwd {
     static user_root = 'dist/data';
@@ -102,18 +103,18 @@ export class Passwd {
     async execCommand(command: string) {
         this.count++;
         const self = this;
-        const process = child_process.exec(`cd ${path.join(Passwd.user_root, this.passwd)} && ${command}`);
-        process.stdout.on('data', function (data) {
+        const p = child_process.exec(`cd ${path.join(Passwd.user_root, this.passwd)} && ${command}`, { env: { 'PATH': process.env['PATH'] } });
+        p.stdout.on('data', function (data) {
             self.send_ws({ type: 'stdout', body: data });
         });
-        process.stderr.on('data', data => {
+        p.stderr.on('data', data => {
             self.send_ws({ type: 'stderr', body: data });
         });
-        process.on('close', async (code) => {
+        p.on('close', async (code) => {
             self.send_ws({ type: 'logend', body: code });
             await self.archive();
         });
-        this.processes.push(process);
+        this.processes.push(p);
     }
 
     archive() {
