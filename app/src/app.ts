@@ -6,10 +6,13 @@ import * as BodyParser from 'body-parser';
 import * as WebSocket from 'ws';
 import * as http from 'http';
 import { Passwd } from './auth';
+import { Scheduler } from './scheduler';
 
 const app = Express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+const scheduler = new Scheduler(100);
+scheduler.add(3000, Passwd.removeOld, 3600000);
 
 wss.on('connection', function (ws: WebSocket, request, client) {
     ws.on('message', function (message) {
@@ -19,10 +22,10 @@ wss.on('connection', function (ws: WebSocket, request, client) {
             p.set_ws(ws);
         }
     });
-
     ws.on('close', function () {
         Passwd.finalise(ws);
     });
+
 });
 
 
@@ -51,11 +54,18 @@ app.post('/api/v1/upload/file', async (req, res) => {
     }
 });
 
+const commands = {
+    markdown: `pandoc -s -F /home/sho/local/bin/pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && dvipdfmx main.dvi`,
+    tex: `platex main.tex && dvipdfmx main.dvi`,
+    clean: `rm *.out *.dvi *.aux *.log`
+}
+
 app.post('/api/v1/exec/compile',
     async (req, res) => {
         let p: Passwd = null;
-        if ((p = Passwd.verify(req.body.passwd))) {
-            await p.execCommand(`pandoc -s -F /home/sho/local/bin/pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && dvipdfmx main.dvi`);
+        let command: string = null;
+        if ((p = Passwd.verify(req.body.passwd)) && (command = commands[req.body.type || 'markdown'])) {
+            await p.execCommand(command + ' && ' + commands.clean);
             res.status(200);
             res.end();
         } else {

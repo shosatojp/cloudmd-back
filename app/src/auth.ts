@@ -12,27 +12,53 @@ export class Passwd {
         return new Date().getTime().toString(16) + new Array(n).fill(0).map(() => Passwd.str[Math.floor(Math.random() * len)]).join('');
     }
 
+    static removeOld(expires_in: number = 600) {
+        const now = Date.now();
+        const keys = Passwd.hash_table.keys();
+        let key = null;
+        while (key = keys.next().value) {
+            const value: Passwd = Passwd.hash_table.get(key);
+            if (value.created + expires_in < now) {
+                value.finalize();
+            }
+        }
+    }
+
     static async finalise(ws) {
         const keys = Passwd.hash_table.keys();
         let key = null;
         while (key = keys.next().value) {
-            const value: Passwd = Passwd.hash_table[key];
+            const value: Passwd = Passwd.hash_table.get(key);
             if (value.ws === ws) {
-                value.removeWorkingDirectory();
-                Passwd.hash_table.delete(key);
+                value.finalize();
                 return;
             }
         }
     }
 
+
     count = 0;
     ws = null;
     passwd = null;
     closed = false;
+    created = Date.now();
+    processes: child_process.ChildProcess[] = [];
+
+    finalize() {
+        console.log('finarize', this.passwd);
+        this.close_ws();
+        this.removeWorkingDirectory();
+        this.processes.forEach(e => e.kill());
+        Passwd.hash_table.delete(this.passwd);
+    }
+
+    close_ws() {
+        this.ws.terminate();
+    }
 
     constructor() {
         this.passwd = Passwd.generate_id();
-        Passwd.hash_table[this.passwd] = this;
+        Passwd.hash_table.set(this.passwd, this);
     }
 
     removeWorkingDirectory() {
@@ -87,20 +113,23 @@ export class Passwd {
             self.send_ws({ type: 'logend', body: code });
             await self.archive();
         });
+        this.processes.push(process);
     }
 
     archive() {
         return new Promise((res, rej) => {
-            const process = child_process.exec(`tar cfz ${Passwd.archive_root}/${this.passwd}.${('000' + this.count.toString()).slice(-4)}.tar.gz ${Passwd.user_root}/${this.passwd}`);
-            process.on('close', () => {
-                res();
+            fs.mkdir(Passwd.archive_root, { recursive: true }, () => {
+                const process = child_process.exec(`tar cfz ${Passwd.archive_root}/${this.passwd}.${('000' + this.count.toString()).slice(-4)}.tar.gz ${Passwd.user_root}/${this.passwd}`);
+                process.on('close', () => {
+                    res();
+                });
             });
         });
     }
 
     static verify(passwd: string, ws: boolean = true): Passwd | undefined {
         let p: Passwd = null;
-        if (passwd && (p = this.hash_table[passwd])) {
+        if (passwd && (p = this.hash_table.get(passwd))) {
             return (!ws || p.ws) ? p : undefined;
         } else {
             return undefined;
