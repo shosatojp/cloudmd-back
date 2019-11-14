@@ -7,6 +7,7 @@ import * as WebSocket from 'ws';
 import * as http from 'http';
 import { Passwd } from './auth';
 import { Scheduler } from './scheduler';
+import * as process from 'process';
 
 const app = Express();
 const server = http.createServer(app);
@@ -75,11 +76,11 @@ app.post('/api/v1/exec/compile',
     }
 )
 app.use(Express.static(path.resolve(__dirname, '../../dist')));
-
+const port = process.argv[2] || 8000;
 server.listen(
-    8084,
+    port,
     () => {
-        console.log('server started');
+        console.log(`server started on port ${port}`);
     });
 
 export default app;
