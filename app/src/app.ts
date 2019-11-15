@@ -45,6 +45,7 @@ app.use(BodyParser.json({ limit: '50mb' }));
 app.post('/api/v1/upload/file', async (req, res) => {
     let p: Passwd = null;
     if (path.extname(req.body.filename) === '.md') req.body.filename = 'main.md';
+    if (path.extname(req.body.filename) === '.tex') req.body.filename = 'main.tex';
     if ((p = Passwd.verify(req.body.passwd))
         && await p.uploadfile(req.body.filename, req.body.data)) {
         res.status(200);
@@ -58,7 +59,7 @@ app.post('/api/v1/upload/file', async (req, res) => {
 const commands = {
     markdown: `pandoc -s -F ../../../pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && dvipdfmx main.dvi`,
     tex: `platex main.tex && dvipdfmx main.dvi`,
-    clean: `rm *.out *.dvi *.aux *.log`
+    clean: `rm -f *.out *.dvi *.aux *.log`
 }
 
 app.post('/api/v1/exec/compile',
