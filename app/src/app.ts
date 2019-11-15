@@ -57,8 +57,8 @@ app.post('/api/v1/upload/file', async (req, res) => {
 });
 
 const commands = {
-    markdown: `pandoc -s -F ../../../pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && dvipdfmx main.dvi`,
-    tex: `platex main.tex && dvipdfmx main.dvi`,
+    markdown: `pandoc -s -F ../../../pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
+    tex: `platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
     clean: `rm -f *.out *.dvi *.aux *.log`
 }
 
