@@ -13,7 +13,7 @@ export class Passwd {
         return new Date().getTime().toString(16) + new Array(n).fill(0).map(() => Passwd.str[Math.floor(Math.random() * len)]).join('');
     }
 
-    static removeOld(expires_in: number = 600) {
+    static removeOld(expires_in: number) {
         const now = Date.now();
         const keys = Passwd.hash_table.keys();
         let key = null;
