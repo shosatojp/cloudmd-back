@@ -27,13 +27,9 @@
     "webpack-cli": "^3.3.10"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "back:build": "tsc -p .",
-    "back:watch": "tsc -p . -w",
-    "front:build": "webpack",
-    "start": "webpack-dev-server",
-    "server": "ts-node app/src/app.ts",
-    "all": "npm run front:build && npm run server"
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w",
+    "server": "ts-node app/src/app.ts"
   },
   "repository": {
     "type": "git",
