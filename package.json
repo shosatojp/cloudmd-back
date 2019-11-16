@@ -29,7 +29,8 @@
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . -w",
-    "server": "ts-node app/src/app.ts"
+    "server": "ts-node app/src/app.ts",
+    "clean":"rm -f app/src/*.js app/src/*.map"
   },
   "repository": {
     "type": "git",
