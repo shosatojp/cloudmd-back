@@ -3,3 +3,9 @@ tblPrefix: "表"
 eqnPrefix: "式"
 secPrefix: "セクション"
 lstPrefix: "コード"
+figureTitle: "図"
+tableTitle: "表"
+figureTemplate: $$t$$
+tableTemplate: $$t$$
+listingTemplate: $$t$$
+secHeaderTemplate: $$t$$
