@@ -48,7 +48,7 @@ export class Passwd {
     finalize() {
         console.log('finarize', this.passwd);
         this.close_ws();
-        this.removeWorkingDirectory();
+        if (this.count) this.removeWorkingDirectory();
         this.processes.forEach(e => e.kill());
         Passwd.hash_table.delete(this.passwd);
     }
