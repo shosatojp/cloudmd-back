@@ -53,22 +53,45 @@ app.post('/api/v1/upload/file', async (req, res) => {
     }
 });
 
-const commands = {
-    markdown: `pandoc -s -F ../../../pandoc-crossref main.md -f markdown-auto_identifiers -M "../../../crossrefYaml=pandoc-crossref-config.yml" --template="../../../template.tex"  -o main.tex && platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
-    tex: `platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
-    clean: `rm -f *.out *.dvi *.aux *.log`
+
+async function command_builder(type: string, p: Passwd = undefined, options = { template: undefined }) {
+    const commands = {
+        markdown: `(pandoc  -f markdown-auto_identifiers -t json main.md -M "crossrefYaml=../../../pandoc-crossref-config.yml" | ../../../pandoc-crossref | python3 ../../../../cloudmd-filter/src/main.py | pandoc -s -f json --template="{template}"  -o main.tex) && platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
+        tex: `platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
+        clean: `rm -f *.out *.dvi *.aux *.log`
+    }
+    let command = commands[type || 'markdown'];
+
+    {// template
+        if (type === 'markdown') {
+            let template = undefined;
+            if (p && await p.hasfile('template.tex')) {
+                template = 'template.tex';
+            } else {
+                switch (options.template) {
+                    case 'english':
+                        template = '../../../templates/english.tex';
+                        break;
+                    case 'report':
+                    default:
+                        template = '../../../templates/report.tex';
+                        break;
+                }
+            }
+            command = command.replace('{template}', template);
+        }
+    }
+    console.log(command);
+    return command;
 }
 
 app.post('/api/v1/exec/compile',
     async (req, res) => {
         let p: Passwd = null;
         let command: string = null;
-        if ((p = Passwd.verify(req.body.passwd)) && (command = commands[req.body.type || 'markdown'])) {
-            console.log(p.hasfile);
-            if (req.body.type == 'markdown' && await p.hasfile('template.tex')) {
-                command = command.replace('../../../template.tex', 'template.tex')
-            }
-            await p.execCommand(command + ' && ' + commands.clean);
+        if ((p = Passwd.verify(req.body.passwd))
+            && (command = await command_builder(req.body.type, p, { template: req.body.template }))) {
+            await p.execCommand(command + ' && ' + await command_builder('clean'));
             res.status(200);
             res.end();
         } else {

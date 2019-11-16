@@ -5,7 +5,12 @@
 \usepackage{booktabs}
 \usepackage{framed}
 \usepackage{amsmath}
+\usepackage{caption}
 \usepackage[margin=1in]{geometry}
+
+$for(header-includes)$
+$header-includes$
+$endfor$
 
 $if(highlighting-macros)$
 $highlighting-macros$
@@ -21,6 +26,7 @@ $endif$
 \DeclareFontShape{JY1}{mc}{bx}{sl}{<->ssub*gt/m/n}{}
 
 \def\tightlist{\itemsep1pt\parskip0pt\parsep0pt}
+
 \begin{document}
 \date{$date$}
 \title{$title$$if(subtitle)$ - $subtitle$$endif$}
