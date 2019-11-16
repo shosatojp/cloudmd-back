@@ -1,7 +1,5 @@
 import * as Express from 'express';
 import * as path from 'path';
-import * as ChildProcess from 'child_process';
-import * as fs from 'fs';
 import * as BodyParser from 'body-parser';
 import * as WebSocket from 'ws';
 import * as http from 'http';
@@ -81,7 +79,6 @@ async function command_builder(type: string, p: Passwd = undefined, options = { 
             command = command.replace('{template}', template);
         }
     }
-    console.log(command);
     return command;
 }
 
