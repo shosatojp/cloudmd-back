@@ -30,11 +30,6 @@ wss.on('connection', function (ws: WebSocket, request, client) {
 });
 
 
-app.get(
-    '/api',
-    (req: Express.Request, res: Express.Response) => {
-        return res.send('Hello world.');
-    });
 app.get('/api/v1/ws/start',
     (req, res) => {
         const passwd = new Passwd().passwd;
@@ -44,8 +39,10 @@ app.get('/api/v1/ws/start',
 app.use(BodyParser.json({ limit: '50mb' }));
 app.post('/api/v1/upload/file', async (req, res) => {
     let p: Passwd = null;
-    if (path.extname(req.body.filename) === '.md') req.body.filename = 'main.md';
-    if (path.extname(req.body.filename) === '.tex') req.body.filename = 'main.tex';
+    if (path.extname(req.body.filename) === '.md')
+        req.body.filename = 'main.md';
+    if (req.body.filename !== 'template.tex' && path.extname(req.body.filename) === '.tex')
+        req.body.filename = 'main.tex';
     if ((p = Passwd.verify(req.body.passwd))
         && await p.uploadfile(req.body.filename, req.body.data)) {
         res.status(200);
@@ -67,6 +64,10 @@ app.post('/api/v1/exec/compile',
         let p: Passwd = null;
         let command: string = null;
         if ((p = Passwd.verify(req.body.passwd)) && (command = commands[req.body.type || 'markdown'])) {
+            console.log(p.hasfile);
+            if (req.body.type == 'markdown' && await p.hasfile('template.tex')) {
+                command = command.replace('../../../template.tex', 'template.tex')
+            }
             await p.execCommand(command + ' && ' + commands.clean);
             res.status(200);
             res.end();

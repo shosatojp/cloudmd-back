@@ -80,6 +80,14 @@ export class Passwd {
         }
     }
 
+    hasfile(filename: string): Promise<boolean> {
+        return new Promise((res, rej) => {
+            fs.exists(path.join(Passwd.user_root, this.passwd, filename), (value) => {
+                res(value);
+            });
+        });
+    }
+
     uploadfile(relative_path: string, base64: string): Promise<boolean> {
         base64 = base64.replace(/^[^:]+:[^:/]+\/[^;/]+;base64,/, '');
         return new Promise((res, rej) => {
