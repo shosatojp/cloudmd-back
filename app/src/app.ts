@@ -15,14 +15,18 @@ scheduler.add(3000, Passwd.removeOld, 3600000);
 
 wss.on('connection', function (ws: WebSocket, request, client) {
     ws.on('message', function (message) {
-        const json = JSON.parse(message);
-        let p: Passwd = null;
-        if (p = Passwd.verify(json.passwd, false)) {
-            p.set_ws(ws);
-        }
+        try {
+            const json = JSON.parse(message);
+            let p: Passwd = null;
+            if (p = Passwd.verify(json.passwd, false)) {
+                p.set_ws(ws);
+            }
+        } catch (error) { }
     });
     ws.on('close', function () {
-        Passwd.finalise(ws);
+        try {
+            Passwd.finalise(ws);
+        } catch (error) { }
     });
 
 });
