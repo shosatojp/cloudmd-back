@@ -48,7 +48,7 @@ export class Passwd {
     finalize() {
         console.log('finarize', this.passwd);
         this.close_ws();
-        if (this.count) this.removeWorkingDirectory();
+        this.removeWorkingDirectory();
         this.processes.forEach(e => e.kill());
         Passwd.hash_table.delete(this.passwd);
     }
@@ -93,9 +93,14 @@ export class Passwd {
         return new Promise((res, rej) => {
             const dir = path.join(Passwd.user_root, this.passwd);
             fs.mkdir(dir, { recursive: true }, () => {
-                fs.writeFile(path.join(dir, relative_path), Buffer.from(base64, 'base64'), () => {
-                    res(true);
-                });
+                const absolute_path = path.join(dir, path.basename(relative_path));
+                if (absolute_path.startsWith(dir)) {
+                    fs.writeFile(absolute_path, Buffer.from(base64, 'base64'), () => {
+                        res(true);
+                    });
+                } else {
+                    rej(false);
+                }
             });
         });
     }
@@ -120,7 +125,7 @@ export class Passwd {
         });
         p.on('close', async (code) => {
             self.send_ws({ type: 'logend', body: code });
-            await self.archive();
+            if (!code) await self.archive();
         });
         this.processes.push(p);
     }
