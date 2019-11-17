@@ -1,5 +1,7 @@
 # CloudMarkdown
 
+![](https://github.com/shosatojp/cloudmd-back/workflows/Node%20CI/badge.svg)
+
 - ユーザー管理はしない(めんどい)
 - 不特定多数利用可能
     - yamlheaderは必須とする
