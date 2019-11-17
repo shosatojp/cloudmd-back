@@ -74,6 +74,9 @@ async function command_builder(type: string, p: Passwd = undefined, options = { 
                     case 'english':
                         template = '../../../templates/english.tex';
                         break;
+                    case 'thesis':
+                        template = '../../../templates/thesis.tex';
+                        break;
                     case 'report':
                     default:
                         template = '../../../templates/report.tex';
