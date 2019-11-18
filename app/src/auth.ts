@@ -75,9 +75,7 @@ export class Passwd {
     }
 
     set_ws(ws) {
-        if (!this.ws) {
-            this.ws = ws;
-        }
+        this.ws = ws;
     }
 
     hasfile(filename: string): Promise<boolean> {
@@ -102,6 +100,19 @@ export class Passwd {
                     rej(false);
                 }
             });
+        });
+    }
+
+    downloadfile(relative_path: string) {
+        return new Promise((res, rej) => {
+            const absolute_path = path.resolve(Passwd.user_root,relative_path);
+            if (absolute_path.startsWith(path.resolve(Passwd.user_root, this.passwd))) {
+                fs.readFile(absolute_path, (err, data) => {
+                    err ? res() : res(data);
+                });
+            } else {
+                res();
+            }
         });
     }
 

@@ -6,6 +6,7 @@ import * as http from 'http';
 import { Passwd } from './auth';
 import { Scheduler } from './scheduler';
 import * as process from 'process';
+import * as fs from 'fs';
 
 const app = Express();
 const server = http.createServer(app);
@@ -23,14 +24,13 @@ wss.on('connection', function (ws: WebSocket, request, client) {
             }
         } catch (error) { }
     });
-    ws.on('close', function () {
+    ws.on('close', function (e) {
         try {
-            Passwd.finalise(ws);
+            if (e !== 1006) Passwd.finalise(ws);
         } catch (error) { }
     });
 
 });
-
 
 app.get('/api/v1/ws/start',
     (req, res) => {
@@ -47,6 +47,21 @@ app.post('/api/v1/upload/file', async (req, res) => {
         req.body.filename = 'main.tex';
     if ((p = Passwd.verify(req.body.passwd))
         && await p.uploadfile(req.body.filename, req.body.data)) {
+        res.status(200);
+        res.end();
+    } else {
+        res.status(400);
+        res.end();
+    }
+});
+app.get('/api/v1/download/file/:passwd/:file', async (req, res) => {
+    res.setHeader('Content-Type', 'application/force-download');
+    res.setHeader('Content-Disposition', `attachment; filename="${req.params.file}"`);
+    let p: Passwd = null;
+    let data = null;
+    if ((p = Passwd.verify(req.params.passwd))
+        && (data = await p.downloadfile(`${p.passwd}/${req.params.file}`))) {
+        res.write(data);
         res.status(200);
         res.end();
     } else {
