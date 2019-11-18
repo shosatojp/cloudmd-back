@@ -107,7 +107,7 @@ export class Passwd {
 
     downloadfile(relative_path: string) {
         return new Promise((res, rej) => {
-            const absolute_path = path.resolve(Passwd.user_root, relative_path);
+            const absolute_path = path.resolve(Passwd.user_root, this.passwd, relative_path);
             if (absolute_path.startsWith(path.resolve(Passwd.user_root, this.passwd))) {
                 fs.readFile(absolute_path, (err, data) => {
                     err ? res() : res(data);

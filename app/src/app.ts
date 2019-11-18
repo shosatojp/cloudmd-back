@@ -55,13 +55,24 @@ app.post('/api/v1/upload/file', async (req, res) => {
         res.end();
     }
 });
+app.head('/api/v1/download/file/:passwd/:file', async (req, res) => {
+    let p: Passwd = null;
+    if ((p = Passwd.verify(req.params.passwd))
+        && await p.hasfile(req.params.file)) {
+        res.status(200);
+        res.end();
+    } else {
+        res.status(400);
+        res.end();
+    }
+});
 app.get('/api/v1/download/file/:passwd/:file', async (req, res) => {
     res.setHeader('Content-Type', 'application/force-download');
     res.setHeader('Content-Disposition', `attachment; filename="${req.params.file}"`);
     let p: Passwd = null;
     let data = null;
     if ((p = Passwd.verify(req.params.passwd))
-        && (data = await p.downloadfile(`${p.passwd}/${req.params.file}`))) {
+        && (data = await p.downloadfile(req.params.file))) {
         res.write(data);
         res.status(200);
         res.end();
