@@ -163,5 +163,13 @@ export class Passwd {
         }
     }
 
+    get_path(relative: string) {
+        const absolute = path.resolve(Passwd.user_root, this.passwd, relative);
+        if (absolute.startsWith(path.resolve(Passwd.user_root, this.passwd))) {
+            return absolute;
+        } else {
+            return undefined;
+        }
+    }
 
 }

@@ -7,6 +7,7 @@ import { Passwd } from './auth';
 import { Scheduler } from './scheduler';
 import * as process from 'process';
 import * as fs from 'fs';
+import * as ejs from 'ejs';
 
 const app = Express();
 const server = http.createServer(app);
@@ -71,9 +72,30 @@ app.get('/api/v1/download/file/:passwd/:file', async (req, res) => {
 });
 
 
-async function command_builder(type: string, p: Passwd = undefined, options = { template: undefined }) {
+async function template_builder(p: Passwd = undefined, template_path: string, data: object = {}) {
+    return new Promise((res, rej) => {
+        ejs.renderFile(template_path, data, {}, (err, str: string) => {
+            console.log(err);
+            if (!err) {
+                const _path = p.get_path('template.tex');
+                if (_path) {
+                    console.log(_path, str);
+                    fs.writeFile(_path, str, () => {
+                        res(true);
+                    });
+                } else {
+                    res(false);
+                }
+            } else {
+                res(false);
+            }
+        });
+    });
+}
+
+async function command_builder(type: string, p: Passwd = undefined, options = { template: undefined, pdf_minorversion: undefined }) {
     const commands = {
-        markdown: `(pandoc  -f markdown-auto_identifiers -t json main.md -M "crossrefYaml=../../../pandoc-crossref-config.yml" | ../../../pandoc-crossref | python3 ../../../../cloudmd-filter/src/main.py | pandoc -s -f json --template="{template}"  -o main.tex) && platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
+        markdown: `(pandoc  -f markdown-auto_identifiers -t json main.md -M "crossrefYaml=../../../pandoc-crossref-config.yml" | ../../../pandoc-crossref | python3 ../../../../cloudmd-filter/src/main.py | pandoc -s -f json --template="template.tex"  -o main.tex) && platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
         tex: `platex main.tex && platex main.tex && platex main.tex && dvipdfmx main.dvi`,
         clean: `rm -f *.out *.dvi *.aux *.log`
     }
@@ -81,24 +103,25 @@ async function command_builder(type: string, p: Passwd = undefined, options = { 
 
     {// template
         if (type === 'markdown') {
-            let template = undefined;
-            if (p && await p.hasfile('template.tex')) {
-                template = 'template.tex';
-            } else {
+            if (!(p && await p.hasfile('template.tex'))) {
+                let template = undefined;
                 switch (options.template) {
                     case 'english':
-                        template = '../../../templates/english.tex';
+                        template = 'templates/english.tex';
                         break;
                     case 'thesis':
-                        template = '../../../templates/thesis.tex';
+                        template = 'templates/thesis.tex';
                         break;
                     case 'report':
                     default:
-                        template = '../../../templates/report.tex';
+                        template = 'templates/report.tex';
                         break;
                 }
+                await template_builder(p, template, {
+                    pdf_minorversion: options.pdf_minorversion
+                });
             }
-            command = command.replace('{template}', template);
+            // command = command.replace('{template}', template);
         }
     }
     return command;
@@ -108,8 +131,12 @@ app.post('/api/v1/exec/compile',
     async (req, res) => {
         let p: Passwd = null;
         let command: string = null;
+        console.log(req.body.pdf_minorversion);
         if ((p = Passwd.verify(req.body.passwd))
-            && (command = await command_builder(req.body.type, p, { template: req.body.template }))) {
+            && (command = await command_builder(req.body.type, p, {
+                template: req.body.template,
+                pdf_minorversion: req.body.pdf_minorversion || '5'
+            }))) {
             await p.execCommand(command + ' && ' + await command_builder('clean'));
             res.status(200);
             res.end();

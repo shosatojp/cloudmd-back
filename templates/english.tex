@@ -3,6 +3,10 @@
 \renewcommand{\baselinestretch}{1.5}
 \def\tightlist{\itemsep1pt\parskip0pt\parsep0pt}
 
+<% if (pdf_minorversion) { %>
+\special{pdf: minorversion=<%= pdf_minorversion %>}
+<% } %>
+
 \begin{document}
 \date{$date$}
 \title{$title$ \\ $subtitle$}

@@ -20,3 +20,6 @@
     - https://mamewaza.com/support/blog/force-download.html
 - Firefox でダウンロードできなかった
 - まだWebSocket切れる
+- ejsでテンプレートを構成(pdfversion)
+    - template.texとして作業ディレクトリにコピー
+    - そこでテンプレートエンジンでテンプレートを構成

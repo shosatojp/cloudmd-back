@@ -7,6 +7,10 @@
 \usepackage{caption}
 \usepackage[margin=1in]{geometry}
 
+<% if (pdf_minorversion) { %>
+\special{pdf: minorversion=<%= pdf_minorversion %>}
+<% } %>
+
 $for(header-includes)$
 $header-includes$
 $endfor$
