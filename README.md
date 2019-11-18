@@ -15,3 +15,8 @@
 - いいかんじのUI(てきとう)
 - latexのinclude、command機能セキュリティ
 - Pandoc Filter with Python
+- Download Endpoint
+    - force download header
+    - https://mamewaza.com/support/blog/force-download.html
+- Firefox でダウンロードできなかった
+- まだWebSocket切れる
