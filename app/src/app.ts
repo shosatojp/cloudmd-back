@@ -75,11 +75,9 @@ app.get('/api/v1/download/file/:passwd/:file', async (req, res) => {
 async function template_builder(p: Passwd = undefined, template_path: string, data: object = {}) {
     return new Promise((res, rej) => {
         ejs.renderFile(template_path, data, {}, (err, str: string) => {
-            console.log(err);
             if (!err) {
                 const _path = p.get_path('template.tex');
                 if (_path) {
-                    console.log(_path, str);
                     fs.writeFile(_path, str, () => {
                         res(true);
                     });
@@ -131,7 +129,6 @@ app.post('/api/v1/exec/compile',
     async (req, res) => {
         let p: Passwd = null;
         let command: string = null;
-        console.log(req.body.pdf_minorversion);
         if ((p = Passwd.verify(req.body.passwd))
             && (command = await command_builder(req.body.type, p, {
                 template: req.body.template,
