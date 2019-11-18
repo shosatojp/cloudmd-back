@@ -87,8 +87,10 @@ export class Passwd {
     }
 
     uploadfile(relative_path: string, base64: string): Promise<boolean> {
-        base64 = base64.replace(/^[^:]+:[^:/]+\/[^;/]+;base64,/, '');
+        const re = /^data:[^:;]*;base64,/;
         return new Promise((res, rej) => {
+            if (!re.test(base64)) res(false);
+            base64 = base64.replace(re, '');
             const dir = path.join(Passwd.user_root, this.passwd);
             fs.mkdir(dir, { recursive: true }, () => {
                 const absolute_path = path.join(dir, path.basename(relative_path));
@@ -97,7 +99,7 @@ export class Passwd {
                         res(true);
                     });
                 } else {
-                    rej(false);
+                    res(false);
                 }
             });
         });
@@ -105,7 +107,7 @@ export class Passwd {
 
     downloadfile(relative_path: string) {
         return new Promise((res, rej) => {
-            const absolute_path = path.resolve(Passwd.user_root,relative_path);
+            const absolute_path = path.resolve(Passwd.user_root, relative_path);
             if (absolute_path.startsWith(path.resolve(Passwd.user_root, this.passwd))) {
                 fs.readFile(absolute_path, (err, data) => {
                     err ? res() : res(data);
