@@ -4,8 +4,8 @@ import * as child_process from 'child_process';
 import * as process from 'process';
 
 export class Passwd {
-    static user_root = 'dist/data';
-    static archive_root = 'archive';
+    static user_root = path.join(path.dirname(path.dirname(__dirname)), 'dist/data');
+    static archive_root = path.join(path.dirname(path.dirname(__dirname)), 'archive');
     static hash_table = new Map<string, Passwd>();
     static str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     static generate_id(n: number = 50): string {
