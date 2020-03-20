@@ -155,7 +155,7 @@ app.post('/api/v1/exec/compile',
     }
 )
 app.use(Express.static(path.resolve(__dirname, '../../dist')));
-const port = process.argv[2] || 8000;
+const port = 8080;
 server.listen(
     port,
     () => {
